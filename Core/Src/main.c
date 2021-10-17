@@ -23,6 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "blink.h"
 #include "stdio.h"
 /* USER CODE END Includes */
 
@@ -51,7 +52,12 @@ const osThreadAttr_t defaultTask_attributes = {
   .priority = (osPriority_t) osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
-
+osThreadId_t blinkTaskHandle;
+const osThreadAttr_t blinkTask_attributes = {
+  .name = "blinkTask",
+  .stack_size = 64 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -127,11 +133,11 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+  blinkTaskHandle = osThreadNew(StartBlinkTask, NULL, &blinkTask_attributes);
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_EVENTS */
   /* add events, ... */
-  printf("\r\nHello FreeRTOS test!\r\n");
   /* USER CODE END RTOS_EVENTS */
 
   /* Start scheduler */
@@ -286,14 +292,14 @@ int __io_putchar(int ch)
 /* USER CODE END Header_StartDefaultTask */
 void StartDefaultTask(void *argument)
 {
-  /* USER CODE BEGIN 5 */
-  /* Infinite loop */
-  for(;;)
-  {
-	  HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-	  osDelay(100);
-  }
-  /* USER CODE END 5 */
+	/* USER CODE BEGIN 5 */
+	printf("\r\nHello FreeRTOS test!\r\n");
+	/* Infinite loop */
+	for(;;)
+	{
+	  osDelay(1);
+	}
+	/* USER CODE END 5 */
 }
 
 /**
