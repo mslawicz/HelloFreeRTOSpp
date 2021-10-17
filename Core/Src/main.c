@@ -23,7 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "stdio.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -131,6 +131,7 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_EVENTS */
   /* add events, ... */
+  printf("\r\nHello FreeRTOS test!\r\n");
   /* USER CODE END RTOS_EVENTS */
 
   /* Start scheduler */
@@ -289,7 +290,6 @@ void StartDefaultTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-	  __io_putchar('m');
 	  HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 	  osDelay(100);
   }
