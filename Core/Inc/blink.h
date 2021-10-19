@@ -9,7 +9,7 @@
 #define INC_BLINK_H_
 
 
-void StartBlinkTask(void *argument);
+void blinkTask(void* argument);
 
 
 #endif /* INC_BLINK_H_ */

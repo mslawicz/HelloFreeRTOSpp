@@ -51,13 +51,20 @@ const osThreadAttr_t defaultTask_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
-/* USER CODE BEGIN PV */
+/* Definitions for blinkTask */
 osThreadId_t blinkTaskHandle;
 const osThreadAttr_t blinkTask_attributes = {
   .name = "blinkTask",
-  .stack_size = 64 * 4,
+  .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
+/* Definitions for blinkQueue */
+osMessageQueueId_t blinkQueueHandle;
+const osMessageQueueAttr_t blinkQueue_attributes = {
+  .name = "blinkQueue"
+};
+/* USER CODE BEGIN PV */
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -65,9 +72,10 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 void StartDefaultTask(void *argument);
-
+void startBlinkTask(void *argument);
 /* USER CODE BEGIN PFP */
 int __io_putchar(int ch);
+void blinkTask(void *argument);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -123,6 +131,10 @@ int main(void)
   /* start timers, add new ones, ... */
   /* USER CODE END RTOS_TIMERS */
 
+  /* Create the queue(s) */
+  /* creation of blinkQueue */
+  blinkQueueHandle = osMessageQueueNew (8, sizeof(uint16_t), &blinkQueue_attributes);
+
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
@@ -131,9 +143,12 @@ int main(void)
   /* creation of defaultTask */
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
+  /* creation of blinkTask */
+  blinkTaskHandle = osThreadNew(startBlinkTask, NULL, &blinkTask_attributes);
+
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
-  blinkTaskHandle = osThreadNew(StartBlinkTask, NULL, &blinkTask_attributes);
+
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_EVENTS */
@@ -292,14 +307,28 @@ int __io_putchar(int ch)
 /* USER CODE END Header_StartDefaultTask */
 void StartDefaultTask(void *argument)
 {
-	/* USER CODE BEGIN 5 */
+  /* USER CODE BEGIN 5 */
 	printf("\r\nHello FreeRTOS test!\r\n");
 	/* Infinite loop */
 	for(;;)
 	{
 	  osDelay(1);
 	}
-	/* USER CODE END 5 */
+  /* USER CODE END 5 */
+}
+
+/* USER CODE BEGIN Header_startBlinkTask */
+/**
+* @brief Function implementing the blinkTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_startBlinkTask */
+void startBlinkTask(void *argument)
+{
+  /* USER CODE BEGIN startBlinkTask */
+	blinkTask(argument);
+  /* USER CODE END startBlinkTask */
 }
 
 /**

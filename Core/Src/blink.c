@@ -8,7 +8,7 @@
 #include "main.h"
 #include "cmsis_os.h"
 
-void StartBlinkTask(void *argument)
+void blinkTask(void* argument)
 {
 	/* Infinite loop */
 	for(;;)
