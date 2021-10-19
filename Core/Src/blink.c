@@ -10,16 +10,12 @@
 
 void blinkTask(void* argument)
 {
+	osMessageQueueId_t queueHandle = (osMessageQueueId_t)argument;
+	uint16_t value;
 	/* Infinite loop */
 	for(;;)
 	{
-	  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
-	  osDelay(100);
-	  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
-	  osDelay(100);
-	  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
-	  osDelay(100);
-	  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
-	  osDelay(700);
+		osMessageQueueGet(queueHandle, &value, NULL, osWaitForever);
+		HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, value & 1);
 	}
 }

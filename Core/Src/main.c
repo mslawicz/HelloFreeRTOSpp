@@ -144,7 +144,7 @@ int main(void)
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
   /* creation of blinkTask */
-  blinkTaskHandle = osThreadNew(startBlinkTask, NULL, &blinkTask_attributes);
+  blinkTaskHandle = osThreadNew(startBlinkTask, blinkQueueHandle, &blinkTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -309,10 +309,22 @@ void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN 5 */
 	printf("\r\nHello FreeRTOS test!\r\n");
+	uint16_t value;
 	/* Infinite loop */
 	for(;;)
 	{
-	  osDelay(1);
+		value = 1;
+		osMessageQueuePut(blinkQueueHandle, &value, 0U, 0U);
+		osDelay(100);
+		value = 0;
+		osMessageQueuePut(blinkQueueHandle, &value, 0U, 0U);
+		osDelay(100);
+		value = 1;
+		osMessageQueuePut(blinkQueueHandle, &value, 0U, 0U);
+		osDelay(100);
+		value = 0;
+		osMessageQueuePut(blinkQueueHandle, &value, 0U, 0U);
+		osDelay(700);
 	}
   /* USER CODE END 5 */
 }
