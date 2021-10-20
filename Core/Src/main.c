@@ -58,10 +58,10 @@ const osThreadAttr_t blinkTask_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
-/* Definitions for blinkQueue */
-osMessageQueueId_t blinkQueueHandle;
-const osMessageQueueAttr_t blinkQueue_attributes = {
-  .name = "blinkQueue"
+/* Definitions for blinkSemaphore */
+osSemaphoreId_t blinkSemaphoreHandle;
+const osSemaphoreAttr_t blinkSemaphore_attributes = {
+  .name = "blinkSemaphore"
 };
 /* USER CODE BEGIN PV */
 
@@ -73,6 +73,7 @@ static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 void StartDefaultTask(void *argument);
 void startBlinkTask(void *argument);
+
 /* USER CODE BEGIN PFP */
 int __io_putchar(int ch);
 void blinkTask(void *argument);
@@ -123,6 +124,10 @@ int main(void)
   /* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
 
+  /* Create the semaphores(s) */
+  /* creation of blinkSemaphore */
+  blinkSemaphoreHandle = osSemaphoreNew(1, 1, &blinkSemaphore_attributes);
+
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
@@ -131,20 +136,16 @@ int main(void)
   /* start timers, add new ones, ... */
   /* USER CODE END RTOS_TIMERS */
 
-  /* Create the queue(s) */
-  /* creation of blinkQueue */
-  blinkQueueHandle = osMessageQueueNew (8, sizeof(uint16_t), &blinkQueue_attributes);
-
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
   /* creation of defaultTask */
-  defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+  defaultTaskHandle = osThreadNew(StartDefaultTask, blinkSemaphoreHandle, &defaultTask_attributes);
 
   /* creation of blinkTask */
-  blinkTaskHandle = osThreadNew(startBlinkTask, blinkQueueHandle, &blinkTask_attributes);
+  blinkTaskHandle = osThreadNew(startBlinkTask, blinkSemaphoreHandle, &blinkTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -309,22 +310,19 @@ void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN 5 */
 	printf("\r\nHello FreeRTOS test!\r\n");
-	uint16_t value;
+	osSemaphoreId_t semaphoreHandle = (osSemaphoreId_t)argument;
 	/* Infinite loop */
 	for(;;)
 	{
-		value = 1;
-		osMessageQueuePut(blinkQueueHandle, &value, 0U, 0U);
-		osDelay(100);
-		value = 0;
-		osMessageQueuePut(blinkQueueHandle, &value, 0U, 0U);
-		osDelay(100);
-		value = 1;
-		osMessageQueuePut(blinkQueueHandle, &value, 0U, 0U);
-		osDelay(100);
-		value = 0;
-		osMessageQueuePut(blinkQueueHandle, &value, 0U, 0U);
-		osDelay(700);
+		osSemaphoreRelease(semaphoreHandle);
+		if(HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) == 1)
+		{
+			osDelay(300);
+		}
+		else
+		{
+			osDelay(100);
+		}
 	}
   /* USER CODE END 5 */
 }

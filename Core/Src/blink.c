@@ -10,12 +10,11 @@
 
 void blinkTask(void* argument)
 {
-	osMessageQueueId_t queueHandle = (osMessageQueueId_t)argument;
-	uint16_t value;
+	osSemaphoreId_t semaphoreHandle = (osSemaphoreId_t)argument;
 	/* Infinite loop */
 	for(;;)
 	{
-		osMessageQueueGet(queueHandle, &value, NULL, osWaitForever);
-		HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, value & 1);
+		osSemaphoreAcquire(semaphoreHandle, osWaitForever);
+		HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 	}
 }
