@@ -58,6 +58,11 @@ const osThreadAttr_t blinkTask_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
+/* Definitions for blinkMutex */
+osMutexId_t blinkMutexHandle;
+const osMutexAttr_t blinkMutex_attributes = {
+  .name = "blinkMutex"
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -114,6 +119,9 @@ int main(void)
 
   /* Init scheduler */
   osKernelInitialize();
+  /* Create the mutex(es) */
+  /* creation of blinkMutex */
+  blinkMutexHandle = osMutexNew(&blinkMutex_attributes);
 
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
@@ -136,7 +144,7 @@ int main(void)
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
   /* creation of blinkTask */
-  blinkTaskHandle = osThreadNew(startBlinkTask, NULL, &blinkTask_attributes);
+  blinkTaskHandle = osThreadNew(startBlinkTask, blinkMutexHandle, &blinkTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -304,15 +312,15 @@ void StartDefaultTask(void *argument)
 	/* Infinite loop */
 	for(;;)
 	{
-		osThreadFlagsSet(blinkTaskHandle, 0x00000001);
-		if(HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) == 1)
+		if(HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) == 0)	//pushbutton pressed
 		{
-			osDelay(300);
+			osMutexAcquire(blinkMutexHandle, osWaitForever);
+			osDelay(50);
+			while(HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) == 0);
+			osDelay(50);
+			osMutexRelease(blinkMutexHandle);
 		}
-		else
-		{
-			osDelay(100);
-		}
+		osDelay(10);
 	}
   /* USER CODE END 5 */
 }

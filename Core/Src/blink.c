@@ -10,10 +10,13 @@
 
 void blinkTask(void* argument)
 {
+	osMutexId_t mutexHandle = (osMutexId_t)argument;
 	/* Infinite loop */
 	for(;;)
 	{
-		osThreadFlagsWait(0x00000001, osFlagsWaitAny, osWaitForever);
+		osMutexAcquire(mutexHandle, osWaitForever);
 		HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+		osMutexRelease(mutexHandle);
+		osDelay(100);
 	}
 }
