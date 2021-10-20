@@ -58,11 +58,6 @@ const osThreadAttr_t blinkTask_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
-/* Definitions for blinkSemaphore */
-osSemaphoreId_t blinkSemaphoreHandle;
-const osSemaphoreAttr_t blinkSemaphore_attributes = {
-  .name = "blinkSemaphore"
-};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -124,10 +119,6 @@ int main(void)
   /* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
 
-  /* Create the semaphores(s) */
-  /* creation of blinkSemaphore */
-  blinkSemaphoreHandle = osSemaphoreNew(1, 1, &blinkSemaphore_attributes);
-
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
@@ -142,10 +133,10 @@ int main(void)
 
   /* Create the thread(s) */
   /* creation of defaultTask */
-  defaultTaskHandle = osThreadNew(StartDefaultTask, blinkSemaphoreHandle, &defaultTask_attributes);
+  defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
   /* creation of blinkTask */
-  blinkTaskHandle = osThreadNew(startBlinkTask, blinkSemaphoreHandle, &blinkTask_attributes);
+  blinkTaskHandle = osThreadNew(startBlinkTask, NULL, &blinkTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -310,11 +301,10 @@ void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN 5 */
 	printf("\r\nHello FreeRTOS test!\r\n");
-	osSemaphoreId_t semaphoreHandle = (osSemaphoreId_t)argument;
 	/* Infinite loop */
 	for(;;)
 	{
-		osSemaphoreRelease(semaphoreHandle);
+		osThreadFlagsSet(blinkTaskHandle, 0x00000001);
 		if(HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) == 1)
 		{
 			osDelay(300);

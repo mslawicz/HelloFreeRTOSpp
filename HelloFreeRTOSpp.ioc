@@ -1,7 +1,6 @@
 #MicroXplorer Configuration settings - do not modify
-FREERTOS.BinarySemaphores01=blinkSemaphore,Dynamic,NULL
 FREERTOS.FootprintOK=true
-FREERTOS.IPParameters=Tasks01,configUSE_NEWLIB_REENTRANT,configUSE_PREEMPTION,FootprintOK,BinarySemaphores01
+FREERTOS.IPParameters=Tasks01,configUSE_NEWLIB_REENTRANT,configUSE_PREEMPTION,FootprintOK
 FREERTOS.Tasks01=defaultTask,24,128,StartDefaultTask,Default,NULL,Dynamic,NULL,NULL;blinkTask,8,128,startBlinkTask,Default,NULL,Dynamic,NULL,NULL
 FREERTOS.configUSE_NEWLIB_REENTRANT=1
 FREERTOS.configUSE_PREEMPTION=0
