@@ -58,10 +58,10 @@ const osThreadAttr_t blinkTask_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
-/* Definitions for blinkMutex */
-osMutexId_t blinkMutexHandle;
-const osMutexAttr_t blinkMutex_attributes = {
-  .name = "blinkMutex"
+/* Definitions for blinkTimer */
+osTimerId_t blinkTimerHandle;
+const osTimerAttr_t blinkTimer_attributes = {
+  .name = "blinkTimer"
 };
 /* USER CODE BEGIN PV */
 
@@ -73,6 +73,7 @@ static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 void StartDefaultTask(void *argument);
 void startBlinkTask(void *argument);
+void blinkTimerCbk(void *argument);
 
 /* USER CODE BEGIN PFP */
 int __io_putchar(int ch);
@@ -119,9 +120,6 @@ int main(void)
 
   /* Init scheduler */
   osKernelInitialize();
-  /* Create the mutex(es) */
-  /* creation of blinkMutex */
-  blinkMutexHandle = osMutexNew(&blinkMutex_attributes);
 
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
@@ -131,8 +129,13 @@ int main(void)
   /* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
 
+  /* Create the timer(s) */
+  /* creation of blinkTimer */
+  blinkTimerHandle = osTimerNew(blinkTimerCbk, osTimerPeriodic, NULL, &blinkTimer_attributes);
+
   /* USER CODE BEGIN RTOS_TIMERS */
   /* start timers, add new ones, ... */
+
   /* USER CODE END RTOS_TIMERS */
 
   /* USER CODE BEGIN RTOS_QUEUES */
@@ -144,7 +147,7 @@ int main(void)
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
   /* creation of blinkTask */
-  blinkTaskHandle = osThreadNew(startBlinkTask, blinkMutexHandle, &blinkTask_attributes);
+  blinkTaskHandle = osThreadNew(startBlinkTask, NULL, &blinkTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -309,16 +312,20 @@ void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN 5 */
 	printf("\r\nHello FreeRTOS test!\r\n");
+	osTimerStart(blinkTimerHandle, 500U);
 	/* Infinite loop */
 	for(;;)
 	{
 		if(HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) == 0)	//pushbutton pressed
 		{
-			osMutexAcquire(blinkMutexHandle, osWaitForever);
+			osTimerStart(blinkTimerHandle, 100U);
 			osDelay(50);
-			while(HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) == 0);
+			while(HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) == 0)
+			{
+				osDelay(10);
+			}
+			osTimerStart(blinkTimerHandle, 500U);
 			osDelay(50);
-			osMutexRelease(blinkMutexHandle);
 		}
 		osDelay(10);
 	}
@@ -337,6 +344,14 @@ void startBlinkTask(void *argument)
   /* USER CODE BEGIN startBlinkTask */
 	blinkTask(argument);
   /* USER CODE END startBlinkTask */
+}
+
+/* blinkTimerCbk function */
+void blinkTimerCbk(void *argument)
+{
+  /* USER CODE BEGIN blinkTimerCbk */
+	HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+  /* USER CODE END blinkTimerCbk */
 }
 
 /**

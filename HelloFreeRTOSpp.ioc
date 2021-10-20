@@ -1,8 +1,8 @@
 #MicroXplorer Configuration settings - do not modify
 FREERTOS.FootprintOK=true
-FREERTOS.IPParameters=Tasks01,configUSE_NEWLIB_REENTRANT,configUSE_PREEMPTION,FootprintOK,Mutexes01
-FREERTOS.Mutexes01=blinkMutex,Dynamic,NULL
+FREERTOS.IPParameters=Tasks01,configUSE_NEWLIB_REENTRANT,configUSE_PREEMPTION,FootprintOK,Timers01
 FREERTOS.Tasks01=defaultTask,24,128,StartDefaultTask,Default,NULL,Dynamic,NULL,NULL;blinkTask,8,128,startBlinkTask,Default,NULL,Dynamic,NULL,NULL
+FREERTOS.Timers01=blinkTimer,blinkTimerCbk,osTimerPeriodic,Default,NULL,Dynamic,NULL
 FREERTOS.configUSE_NEWLIB_REENTRANT=1
 FREERTOS.configUSE_PREEMPTION=0
 File.Version=6
